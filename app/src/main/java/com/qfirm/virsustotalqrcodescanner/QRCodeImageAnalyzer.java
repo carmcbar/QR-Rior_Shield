@@ -1,4 +1,4 @@
-package com.learntodroid.androidqrcodescanner;
+package com.qfirm.virsustotalqrcodescanner;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageAnalysis;
@@ -13,15 +13,11 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.multi.qrcode.QRCodeMultiReader;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static android.graphics.ImageFormat.YUV_420_888;
 import static android.graphics.ImageFormat.YUV_422_888;
 import static android.graphics.ImageFormat.YUV_444_888;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 public class QRCodeImageAnalyzer implements ImageAnalysis.Analyzer {
     private QRCodeFoundListener listener;

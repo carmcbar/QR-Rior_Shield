@@ -1,4 +1,4 @@
-package com.learntodroid.androidqrcodescanner;
+package com.qfirm.virsustotalqrcodescanner;
 
 import android.content.Context;
 

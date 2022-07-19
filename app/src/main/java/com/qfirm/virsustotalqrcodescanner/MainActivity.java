@@ -1,6 +1,7 @@
-package com.learntodroid.androidqrcodescanner;
+package com.qfirm.virsustotalqrcodescanner;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -14,39 +15,33 @@ import androidx.lifecycle.LifecycleOwner;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.util.Log;
 import android.util.Size;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.WebView;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.kanishka.virustotal.dto.FileScanReport;
 import com.kanishka.virustotal.dto.ScanInfo;
-import com.kanishka.virustotal.dto.VirusScanInfo;
 import com.kanishka.virustotal.exception.APIKeyNotFoundException;
 import com.kanishka.virustotal.exception.UnauthorizedAccessException;
 import com.kanishka.virustotalv2.VirusTotalConfig;
 import com.kanishka.virustotalv2.VirustotalPublicV2;
 import com.kanishka.virustotalv2.VirustotalPublicV2Impl;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CAMERA = 0;
@@ -57,9 +52,22 @@ public class MainActivity extends AppCompatActivity {
     private Button qrCodeFoundButton;
     private String qrCode;
     private String qrCodeResponse;
+    private int thePositives =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //set appTitle
+        ActionBar actionBar = getSupportActionBar();//getbetter name
+
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setIcon(R.drawable.logoname);
+
+        ColorDrawable colorDrawable
+                = new ColorDrawable(Color.parseColor("#000000"));
+
+        // Set BackgroundDrawable
+        actionBar.setBackgroundDrawable(colorDrawable);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -153,13 +161,11 @@ public class MainActivity extends AppCompatActivity {
             // Will contain the raw JSON response as a string.
             String stringResults = null;
             try {
-                VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey("APIKey");//need to put in APIKey to make it work
+                VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey("7a37318e9abf3525f4d795ba7509a5622e4f9aed0af920387919216a9835ff67");//need to put in APIKey to make it work
                 VirustotalPublicV2 virusTotalRef;
                 virusTotalRef = new VirustotalPublicV2Impl();
                 String urls[] = {qrCode};
-                String theReport[] = {""};//try change this to just one
-                int count=0;//don't need this as only 1 url to scan
-
+                String theReport[] = {""};
 
                 ScanInfo[] scanInfoArr = virusTotalRef.scanUrls(urls);
                 FileScanReport[] reports = virusTotalRef.getUrlScanReport(urls, false);
@@ -167,7 +173,11 @@ public class MainActivity extends AppCompatActivity {
                     if(report.getResponseCode()==0){
                         continue;
                     }
-                    qrCodeResponse = qrCode +" has " +  report.getPositives() + " out of " + report.getTotal()  + " Malicious reports";
+                    thePositives = report.getPositives();
+                    if( thePositives> 0)
+                        qrCodeResponse = qrCode +" has at least one malicious report";
+                    else
+                        qrCodeResponse = qrCode +" has no malicious reports";
                     stringResults = qrCodeResponse;
 
                 }
@@ -194,8 +204,31 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+           //
 
-            Toast.makeText(getApplicationContext(), qrCodeResponse, Toast.LENGTH_SHORT).show();
+
+           // Show warning message with custom toast message with image
+            ImageView view = new ImageView(getApplicationContext());
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = inflater.inflate(R.layout.custom_toast_layout,(ViewGroup) findViewById(R.id.toast_layout_root));
+
+
+            TextView txt = (TextView) layout.findViewById(R.id.toastmsg);
+            txt.setText(qrCodeResponse);
+
+            ImageView image = (ImageView) layout.findViewById(R.id.image);
+            if(thePositives >0)
+                image.setImageResource(R.drawable.warning);
+            else
+                image.setImageResource(R.drawable.check);
+
+
+            Toast toast = new Toast(getApplicationContext());
+            toast.setGravity(Gravity.BOTTOM,0, 0);
+            toast.setDuration(Toast.LENGTH_LONG);
+            toast.setView(layout);
+            toast.show();
+
             Log.i(MainActivity.class.getSimpleName(), "QR Code Found: " + qrCode);
         }
     }
