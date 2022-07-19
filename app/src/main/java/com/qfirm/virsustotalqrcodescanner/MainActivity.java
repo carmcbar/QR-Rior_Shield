@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             // Will contain the raw JSON response as a string.
             String stringResults = null;
             try {
-                VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey("7a37318e9abf3525f4d795ba7509a5622e4f9aed0af920387919216a9835ff67");//need to put in APIKey to make it work
+                VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey("APIKey");//need to put in APIKey to make it work
                 VirustotalPublicV2 virusTotalRef;
                 virusTotalRef = new VirustotalPublicV2Impl();
                 String urls[] = {qrCode};
